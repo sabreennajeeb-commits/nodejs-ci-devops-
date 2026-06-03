@@ -66,17 +66,29 @@ jobs:
           echo "Deployment to Staging successful!"
 
   deploy-to-production:
-    needs: deploy-to-staging              # This job depends on Staging deployment passing
+    needs: deploy-to-staging
     runs-on: ubuntu-latest
-    environment: Production               # Specify the Production environment
-    
+    environment: Production
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Simulate deployment to Production
         run: |
           echo "Deploying application to Production environment..."
           echo "Application version: $(git rev-parse --short HEAD)"
-          echo "Deployment to Production successful!"
-          # In a real scenario, this would involve commands to deploy to a cloud service
-          # e.g., aws s3 sync build/ s3://production-bucket or kubectl apply -f k8s-prod.yaml
+
+      - name: Simulated health check
+        run: |
+          echo "Running health checks..."
+          echo "Health endpoint: https://yourapp.com/health (simulated)"
+
+          if (( RANDOM % 2 == 0 )); then
+            echo "Health check passed!"
+            echo "Deployment to Production successful!"
+          else
+            echo "Simulated health check failure!"
+            echo "HTTP 500 - Service Unhealthy"
+            exit 1
+          fi
